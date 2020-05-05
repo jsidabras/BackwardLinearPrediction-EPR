@@ -45,8 +45,9 @@ r = time2dist(t);
 
 KB = dipolarkernel(t,r);
 
-
+% regression model fit
 % Pfit = fitregmodel(Vfull,KB,r,'tikh','aicc');
+% gaussian model fit
 maxGauss = 2;
 [Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vfull,KB,r,maxGauss,'aic');
 Vfit = KB*Pfit;
@@ -68,8 +69,4 @@ legend('distance')
 axis tight, grid on, box on
 set(gca,'FontSize',14)
 
-% maxF = max(Pfit);  % Find max value over all elements.
-% indexOfFirstMax = find(Pfit == maxF, 1, 'first');  % Get first element that is the max.
-% % Get the x and y values at that index.
-% maxX = r(indexOfFirstMax)
-param
+fprintf('center = %.4f \nsigma = %.4f \n', param(1), param(2))
