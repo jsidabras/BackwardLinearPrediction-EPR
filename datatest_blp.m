@@ -9,9 +9,10 @@
 clear, clf
 [traw,Vraw] = deerload('./data/X320030405_JD2060.DTA');
 
-n = 15;
-q = 10*n;
-M = 20;
+n = 40;
+q = 3*n;
+M = 10;
+stp = traw(5)-traw(4);
 
 Vraw(1:6) = [];
 Vraw(200:end) = [];
@@ -21,7 +22,8 @@ traw(200:end) = [];
 V = correctphase(Vraw);
 
 % best guess zero time needed for background 
-t = correctzerotime(V, traw);
+% ns -> us
+t = correctzerotime(V, traw)/1000;
 
 % Optimization & Correction of Y-axis scale
 V = V/max(real(V));
@@ -30,8 +32,8 @@ V = V/max(real(V));
 Vsub = V - (1 - lambda)*(B);
 
 % use the blp algorithm to find a back projection
-backpred = blp_epr(Vsub, n, q, M);
-tnew = traw(1)-4*M:4:traw(1)-4;
+backpred = blp_epr(Vsub, n, q, M);  
+tnew = traw(1)-stp*M:stp:traw(1)-stp;
 
 % concatenate the projection solution with the experimental data
 Vfull = [backpred Vsub];
