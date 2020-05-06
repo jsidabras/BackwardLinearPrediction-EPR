@@ -17,7 +17,7 @@ function blp_out = blp_epr(y,n,q,M)
 TMatrix = [];
 pVector = [];
 % initialize the answer vector
-backpred = [];
+blp_out = [];
 for j = 1:n
     % set up the TMatrix and pVector
     % the TMatrix is a n x q matrix that steps through the data
@@ -29,29 +29,31 @@ for j = 1:n
     pVector = [pVector; pVectortmp];
 end
 
-
 for p = 1:M
     % clear and initialize the next TVector and predicted p value
     NextTVector = [];
     NextTMatrix = [];
+
     % solve M.x = b, where x describes the system of knowns
-    xSolved = linsolve(TMatrix, pVector);
+    xSolved = lsqminnorm(TMatrix, pVector);
+ 
     % create an TVector that is missing its pPoint
     NextTVector = TMatrix(1:length(TMatrix(1,:))-1);
     NextTVector = [pVector(1), NextTVector];
+    
     % find the backward predicted point
     pPoint = sum(NextTVector.*xSolved');
+    
     % save predicted point in a solution vector
-    backpred = [pPoint, backpred];
+    blp_out = [pPoint, blp_out];
+    
     % prepend new pPoint to pVector and delete last point keeping size n
     pVector = [pPoint; pVector];
     pVector(end,:) = [];
+    
     % prepend new TVector to TMatrix and delete last vector 
     % keeping size n x q
     TMatrix(end,:) = [];
     TMatrix = [NextTVector; TMatrix];
     
 end
-
-blp_out = backpred;
-    
