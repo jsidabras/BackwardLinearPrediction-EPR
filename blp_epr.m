@@ -32,20 +32,20 @@ end
 for p = 1:M
     % clear and initialize the next TVector and predicted p value
     NextTVector = [];
-    NextTMatrix = [];
 
     % solve M.x = b, where x describes the system of knowns
     xSolved = lsqminnorm(TMatrix, pVector);
- 
+    % xSolved = linsolve(TMatrix, pVector);
+
     % create an TVector that is missing its pPoint
     NextTVector = TMatrix(1:length(TMatrix(1,:))-1);
-    NextTVector = [pVector(1), NextTVector];
+    NextTVector = [pVector(1) NextTVector];
     
     % find the backward predicted point
     pPoint = sum(NextTVector.*xSolved');
     
     % save predicted point in a solution vector
-    blp_out = [pPoint, blp_out];
+    blp_out = [pPoint blp_out];
     
     % prepend new pPoint to pVector and delete last point keeping size n
     pVector = [pPoint; pVector];

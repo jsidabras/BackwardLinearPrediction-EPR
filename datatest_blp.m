@@ -41,7 +41,8 @@ KB = dipolarkernel(t,r);
 
 % gaussian model fit
 maxGauss = 2;
-[Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vsub,KB,r,maxGauss,'aic');
+[Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vsub,KB,r,maxGauss...
+    ,'aic','Lower',[1.5 0.1]);
 Vfit = KB*Pfit;
 
 %Plot results
@@ -70,7 +71,7 @@ clear, clf
 % parameters
 n = 15;
 q = 10*n;
-M = 20;
+M = 25;
 % parameters end
 stp = traw(5)-traw(4); % time step
 
@@ -100,6 +101,7 @@ Vfull = [backpred Vsub];
 Vfull = Vfull/max(Vfull);
 tfull = [tnew traw'];
 
+
 % Optimization & Correction of the found zero-time
 % ns -> us
 t = correctzerotime(Vfull,tfull)/1000;
@@ -111,7 +113,8 @@ KB = dipolarkernel(t,r);
 % Pfit = fitregmodel(Vfull,KB,r,'tikh','aicc');
 % gaussian model fit
 maxGauss = 2;
-[Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vfull,KB,r,maxGauss,'aic');
+[Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vfull,KB,r,maxGauss...
+    ,'aic', 'Lower',[1.5 0.1]);
 Vfit = KB*Pfit;
 
 %Plot results
