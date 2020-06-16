@@ -1,2 +1,3 @@
 # ignore all files that are half-saved m files
 *.m~
+/output/*
