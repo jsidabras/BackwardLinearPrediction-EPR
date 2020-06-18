@@ -11,7 +11,7 @@ function [blp_out, blp_only] = blp_epr(y,L,n)
 
    **n**: real integer; number of coefficients for linear prediction 
       (default: 25)
-   
+
 ### outputs: 
    **blp_out**: full vector of input data y with M concatinated predicted points
 
@@ -22,6 +22,6 @@ function [blp_out, blp_only] = blp_epr(y,L,n)
 
    Initial writing: 04/05/2020 JWS
 
-     New Algorithm: 16/06/2020 JWS
+   New Algorithm: 16/06/2020 JWS
 
    GPLv3 License.

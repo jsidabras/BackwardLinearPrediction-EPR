@@ -94,12 +94,13 @@ set(gca,'FontSize',14)
 % %%%% Uncomment the 2 outputmatrix commands to save data %%%%%%%
 
 clear, clf
+close all
 [traw,Vraw] = deerload('./data/X320060201_JD2073_helix_3pRectDEER_p14_o20-20_overnight.DTA');
 % parameters
 % number of points to cut before analysis
-remove = 14;
+remove = 15;
 % number of points to search for.
-L = remove+10;
+L = remove+20;
 % parameters end
 stp = traw(5)-traw(4); % time step
 
@@ -107,41 +108,38 @@ stp = traw(5)-traw(4); % time step
 Vraw(1:remove) = [];
 traw(1:remove) = [];
 
+% use the blp algorithm to find a back projection
+[Vfull] = blp_epr(Vraw',L,100);
+Vfull = Vfull';
+% Data needs to be transposed to concatenate correctly. 
+tnew = traw(1)-stp*L:stp:traw(1)-stp;
+
+% concatenate the projection solution with the experimental data
+Vfull = Vfull/max(Vfull);
+tfull = [tnew traw'];
+
 % Optimization & Correction of phase
-V = correctphase(Vraw);
+V = correctphase(Vfull);
 
 % best guess zero time needed for background 
 % ns -> us
-t = correctzerotime(V, traw)/1000;
+t = correctzerotime(V, tfull)/1000;
 
 % Optimization & Correction of Y-axis scale
 V = V/max(real(V));
 % find background and subtract from data
 [B,lambda] = fitbackground(V,t,@td_strexp);
 Vsub = V - (1 - lambda)*(B);
-
-% use the blp algorithm to find a back projection
-backpred = blp_epr(Vsub,L);
-% Data needs to be transposed to concatenate correctly. 
-backpred = backpred';
-backpred(L+1:end) = [];
-tnew = traw(1)-stp*L:stp:traw(1)-stp;
-
-% concatenate the projection solution with the experimental data
-Vfull = [backpred Vsub];
-Vfull = Vfull/max(Vfull);
-tfull = [tnew traw'];
-
+Vsub = Vsub/max(Vsub);
 
 % Optimization & Correction of the found zero-time
 % ns -> us
-t = correctzerotime(Vfull,tfull)/1000;
 r = time2dist(t);
 
 KB = dipolarkernel(t,r);
 
 % regression model fit
-Pfit = fitregmodel(Vfull,KB,r,'tikh','aicc');
+Pfit = fitregmodel(Vsub,KB,r,'tikh','aicc');
 % gaussian model fit
 % maxGauss = 2;
 % [Pfit,param,Nopt,metrics,Peval]  = fitmultigauss(Vfull,KB,r,maxGauss...
@@ -150,7 +148,7 @@ Vfit = KB*Pfit;
 
 %Plot results
 subplot(211)
-plot(t,Vfull,'k.',t,Vfit)
+plot(t,Vsub,'k.',t,Vfit)
 xlabel('t [\mus]')
 ylabel('V(t)')
 legend('data','fit')
