@@ -12,7 +12,7 @@ clear all
 
 
 % parameters
-q = 35;
+q = 25;
 snrval = [10 20 50 100 500];
 n_std = 0.025*[5 2.5 1 0.5 0.1]; % noise standard deviation 0.025 ~ SNR 50
 
@@ -68,22 +68,9 @@ for qi = 1:length(snrval)
             tnew = timecut(1)-stp*M(icut):stp:timecut(1)-stp;
 
             L = M(icut);
-            y = flip(Snoisecut);
-            N = length(y);
-            H = toeplitz(y(q:N-1), y(q:-1:1));   
-            H = H;
-            b = y(q+1:N)';
-
-            a = lsqminnorm(H,b);
-            g = [y'; zeros(L, 1)];
-            for jq = N+1:N+L
-                g(jq) = sum(a.*flip(g(jq-q:jq-1)));
-            end
-            backpred = flip(g)';
-            backpred(L+1:end) = [];
 
             % concatenate the projection solution with the experimental data
-            Vfull = [backpred Snoisecut];
+            [Vfull, backpred] = blp_epr(Snoisecut,L,q);
 %             Vfull = Vfull/max(Vfull);
             tfull = [tnew timecut];
             % best guess zero time needed for background 
@@ -101,8 +88,10 @@ for qi = 1:length(snrval)
             list_rmean(i) = param(1);
             list_sigma(i) = param(2);
             backlen = length(backpred);
-            list_rmse(i) = sqrt(mean((backpred-Sfree(1:backlen)').^2));
-
+            list_rmse(i) = sqrt(mean((backpred-Sfree(1:backlen)).^2));
+            hold on
+plot(backpred)
+plot(Sfree(1:backlen))
         end
         rmse_out(2*icut-1) = mean(list_rmse);
         rmse_out(2*icut) = std(list_rmse);

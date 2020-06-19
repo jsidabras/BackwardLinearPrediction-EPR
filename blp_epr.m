@@ -7,7 +7,7 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
 %      Remember to phase and background correct *before* running blp_epr
 %   L: real integer; number of points for backwards prediction     
 %   n: real integer; number of coefficients for linear prediction 
-%      (default: 25)
+%      (default: 50)
 %   
 % outputs: 
 %   blp_out: full vector of input data y with M concatinated predicted points
@@ -19,9 +19,12 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
 %     New Algorithm: 16/06/2020 JWS
 %   GPLv3 License.
 
-    % Default for n is 25. This gives a reasonable set of statistics during testing.
+    % When n is 25: This gives a reasonable set of statistics 
+    % during testing without background.
+    % Default is 50: This works really well with data with real-world
+    % backgrounds.
     if nargin<3
-      n = 25;
+      n = 50;
     end
 
     % currently the toeplitz matrix is setup for forward linear prediction

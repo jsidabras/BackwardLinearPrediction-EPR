@@ -98,7 +98,7 @@ close all
 [traw,Vraw] = deerload('./data/X320060201_JD2073_helix_3pRectDEER_p14_o20-20_overnight.DTA');
 % parameters
 % number of points to cut before analysis
-remove = 15;
+remove = 18;
 % number of points to search for.
 L = remove+20;
 % parameters end
