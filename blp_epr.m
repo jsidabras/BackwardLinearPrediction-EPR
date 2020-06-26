@@ -1,4 +1,4 @@
-function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
+function [blp_out, blp_only] = blp_epr(y,L,n)
 % BLP-EPR backward linear prediction algorithm for 3Pulse DEER data
 % function [blp_out, blp_only] = blp_epr(y,L,n) 
 %
@@ -12,19 +12,19 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
 % outputs: 
 %   blp_out: full vector of input data y with M concatinated predicted points
 %   blp_only: only M concatinated predicted points
-%   b_coeff: output a vector of the solved coefficients 
 %
 % Author: Jason W. Sidabras (jason.sidabras@gmail.com)
 %   Initial writing: 04/05/2020 JWS
 %     New Algorithm: 16/06/2020 JWS
 %   GPLv3 License.
 
-    % When n is 25: This gives a reasonable set of statistics 
+    % When n is 50: This gives a reasonable set of statistics 
     % during testing without background.
-    % Default is 50: This works really well with data with real-world
-    % backgrounds.
+    % Default is maximum number of points: This works really well 
+    % with data with real-world backgrounds and matches noise level.
+    % 
     if nargin<3
-      n = 50;
+      n = length(y)-50 ;
     end
 
     % currently the toeplitz matrix is setup for forward linear prediction
@@ -36,7 +36,7 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
     % TODO: it may be adventageous to limit the input length to filter out
     % known spurrious signals (2+1 artifacts).
     N = length(y);
-    H = toeplitz(y(n:N-1), y(n:-1:1));    
+    H = toeplitz(y(n:N-1), y(n:-1:1));   
     b = y(n+1:N)';
 
     % Using the lsqminnorm really cleaned up the statistics. Much better solver
@@ -69,7 +69,6 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
             g_r(i) = sum(a_r.*flip(g_r(i-n:i-1)));
             g_i(i) = sum(a_i.*flip(g_i(i-n:i-1)));
         end
-        g = complex(zeros(N+L,1),0);
         g = complex(flip(g_r),flip(g_i));
     end
     % NOTE:  
@@ -90,11 +89,4 @@ function [blp_out, blp_only, b_coeff] = blp_epr(y,L,n)
     % get rid of original input data and output only the BLP values
     g(L+1:end) = [];
     blp_only = g;
-
-    % output the coefficients, if interested
-    if isreal(y)
-        b_coeff = a;
-    else
-        b_coeff = a_r;
-    end
 end
